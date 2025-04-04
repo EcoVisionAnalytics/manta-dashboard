@@ -133,7 +133,7 @@ with tabs[0]:
             ],
             tooltip={"html": "<b>Date:</b> {Date}<br/><b>Name:</b> {Name}<br/><b>Sex:</b> {Sex}<br/><b>Age:</b> {Age Class}"}
         ))
-        st.markdown("</div>", unsafe_allow_html=True)Se
+        st.markdown("</div>", unsafe_allow_html=True)
 # --- Visualizations Tab ---
 with tabs[1]:
     st.subheader("Visualizations")
