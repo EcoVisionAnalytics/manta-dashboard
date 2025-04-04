@@ -169,6 +169,7 @@ with tabs[1]:
 
     score1, score2, score3, score4 = st.columns(4)
     with score1:
+	injured_count = month_filtered_df['New Injury?'].astype(str).str.lower().isin(['yes', 'y']).sum()
         st.metric(label="New Injuries", value=injured_count)
 
     col1, col2 = st.columns(2)
