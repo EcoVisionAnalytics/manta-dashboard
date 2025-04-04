@@ -203,7 +203,7 @@ with tabs[1]:
         scatter_df['Water Temperature (°C)'] = pd.to_numeric(scatter_df['Water Temperature (°C)'], errors='coerce')
         scatter = alt.Chart(scatter_df).mark_circle(size=60).encode(
             x='Water Depth (m):Q',
-            y='Water Temperature (°C):Q',
+            y=alt.Y('Water Temperature (°C):Q', scale=alt.Scale(domain=[20, 35])),
             color='Age Class:N',
             tooltip=['Date', 'Name', 'Age Class', 'Water Depth (m)', 'Water Temperature (°C)']
         ).properties(title="Depth vs Temperature by Age Class")
