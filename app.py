@@ -99,6 +99,98 @@ filtered_df = df[
 
 # Tabs
 tabs = st.tabs(["Map", "Visualizations", "Data View", "Upload Data", "Current Tides"])
+# --- Visualizations Tab ---
+with tabs[1]:
+    st.subheader("Visualizations")
+
+    # --- Scorecards ---
+    st.markdown("""
+        <style>
+        .block-container > div > div > div > div {
+            background-color: #7491ab10;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    month_options = sorted(filtered_df['Month'].dropna().unique())
+    year_options = sorted(filtered_df['Year'].dropna().unique())
+
+    col_month, col_year = st.columns(2)
+    with col_month:
+        selected_months = st.multiselect("Filter Scorecards by Month", month_options, default=month_options)
+    with col_year:
+        selected_years_scorecard = st.multiselect("Filter Scorecards by Year", year_options, default=year_options)
+
+    month_filtered_df = filtered_df[
+        filtered_df['Month'].isin(selected_months) &
+        filtered_df['Year'].isin(selected_years_scorecard)
+    ]
+
+    score1, score2, score3, score4 = st.columns(4)
+
+    injured_count = month_filtered_df['New Injury?'].astype(str).str.lower().isin(['yes', 'y']).sum()
+    unique_individuals = month_filtered_df['Manta Individual'].nunique()
+    total_encounters = len(month_filtered_df)
+
+    encounter_col = 'Encounter Length (minutes)'
+    if encounter_col in month_filtered_df.columns:
+        month_filtered_df[encounter_col] = pd.to_numeric(month_filtered_df[encounter_col], errors='coerce')
+        mean_val = month_filtered_df[encounter_col].mean()
+        month_filtered_df[encounter_col] = month_filtered_df[encounter_col].fillna(mean_val)
+        mean_encounter = round(month_filtered_df[encounter_col].mean(), 1)
+    else:
+        mean_encounter = 'N/A'
+
+    with score1:
+        st.metric(label="Total Encounters", value=total_encounters)
+    with score2:
+        st.metric(label="Unique Individuals", value=unique_individuals)
+    with score3:
+        st.metric(label="Mean Encounter Length (min)", value=mean_encounter)
+    with score4:
+        st.metric(label="New Injuries", value=injured_count)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        heatmap_data = filtered_df.dropna(subset=['Month', 'Year'])
+        heatmap = alt.Chart(heatmap_data).mark_rect().encode(
+            x=alt.X('Month:N', title='Month'),
+            y=alt.Y('Year:O', title='Year'),
+            color=alt.Color('count():Q', scale=alt.Scale(scheme='blues'))
+        ).properties(title="Encounter Frequency by Month and Year")
+        st.altair_chart(heatmap, use_container_width=True)
+
+        scatter_df = filtered_df.dropna(subset=['Water Depth (m)', 'Water Temperature (°C)', 'Age Class'])
+        scatter_df['Water Depth (m)'] = pd.to_numeric(scatter_df['Water Depth (m)'], errors='coerce')
+        scatter_df['Water Temperature (°C)'] = pd.to_numeric(scatter_df['Water Temperature (°C)'], errors='coerce')
+        scatter = alt.Chart(scatter_df).mark_circle(size=60).encode(
+            x='Water Depth (m):Q',
+            y='Water Temperature (°C):Q',
+            color='Age Class:N',
+            tooltip=['Date', 'Name', 'Age Class', 'Water Depth (m)', 'Water Temperature (°C)']
+        ).properties(title="Depth vs Temperature by Age Class")
+        st.altair_chart(scatter, use_container_width=True)
+
+    with col2:
+        injury_df = filtered_df[filtered_df['New Injury?'].notnull() & filtered_df['New Injury?'].str.lower().isin(['yes', 'y'])]
+        injury_bar = alt.Chart(injury_df).mark_bar().encode(
+            x='Which Pier:N',
+            y='count():Q',
+            color='Which Pier:N'
+        ).properties(title="Injury Incidence by Pier")
+        st.altair_chart(injury_bar, use_container_width=True)
+
+        width_df = filtered_df.dropna(subset=['Disc Width (m)', 'Age Class', 'Sex'])
+        width_df['Disc Width (m)'] = pd.to_numeric(width_df['Disc Width (m)'], errors='coerce')
+        boxplot = alt.Chart(width_df).mark_boxplot().encode(
+            x='Age Class:N',
+            y='Disc Width (m):Q',
+            color='Sex:N'
+        ).properties(title="Disc Width by Age Class and Sex")
+        st.altair_chart(boxplot, use_container_width=True)
 
 # --- Data View Tab ---
 with tabs[2]:
