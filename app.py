@@ -99,6 +99,41 @@ filtered_df = df[
 
 # Tabs
 tabs = st.tabs(["Map", "Visualizations", "Data View", "Upload Data", "Current Tides"])
+# --- Map Tab ---
+with tabs[0]:
+    st.subheader("Manta Ray Encounter Map")
+    map_df = filtered_df.dropna(subset=['Latitude', 'Longitude'])
+    map_df = map_df.astype({"Latitude": float, "Longitude": float})
+
+    st.markdown("""
+        <style>
+        .fullscreen-map .stDeckGlJson { height: 90vh !important; }
+        </style>
+    """, unsafe_allow_html=True)
+
+    with st.container():
+        st.markdown("<div class='fullscreen-map'>", unsafe_allow_html=True)
+        st.pydeck_chart(pdk.Deck(
+            map_style='mapbox://styles/mapbox/satellite-streets-v11',
+            initial_view_state=pdk.ViewState(
+                latitude=26.7153,
+                longitude=-80.0534,
+                zoom=10,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    'ScatterplotLayer',
+                    data=map_df,
+                    get_position='[Longitude, Latitude]',
+                    get_color='[200, 30, 0, 160]',
+                    get_radius=200,
+                    pickable=True,
+                )
+            ],
+            tooltip={"html": "<b>Date:</b> {Date}<br/><b>Name:</b> {Name}<br/><b>Sex:</b> {Sex}<br/><b>Age:</b> {Age Class}"}
+        ))
+        st.markdown("</div>", unsafe_allow_html=True)Se
 # --- Visualizations Tab ---
 with tabs[1]:
     st.subheader("Visualizations")
