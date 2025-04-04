@@ -99,6 +99,7 @@ filtered_df = df[
 
 # Tabs
 tabs = st.tabs(["Map", "Visualizations", "Data View", "Upload Data", "Current Tides"])
+
 # --- Map Tab ---
 with tabs[0]:
     st.subheader("Manta Ray Encounter Map")
@@ -134,6 +135,7 @@ with tabs[0]:
             tooltip={"html": "<b>Date:</b> {Date}<br/><b>Name:</b> {Name}<br/><b>Sex:</b> {Sex}<br/><b>Age:</b> {Age Class}"}
         ))
         st.markdown("</div>", unsafe_allow_html=True)
+
 # --- Visualizations Tab ---
 with tabs[1]:
     st.subheader("Visualizations")
@@ -195,7 +197,7 @@ with tabs[1]:
             x=alt.X('Month:N', title='Month'),
             y=alt.Y('Year:O', title='Year'),
             color=alt.Color('count():Q', scale=alt.Scale(scheme='blues'))
-        ).properties(title="Encounter Frequency by Month and Year")
+        ).properties(title="Encounter Frequency by Month and Year", height=300)
         st.altair_chart(heatmap, use_container_width=True)
 
         scatter_df = filtered_df.dropna(subset=['Water Depth (m)', 'Water Temperature (°C)', 'Age Class'])
@@ -206,7 +208,7 @@ with tabs[1]:
             y=alt.Y('Water Temperature (°C):Q', scale=alt.Scale(domain=[20, 35])),
             color='Age Class:N',
             tooltip=['Date', 'Name', 'Age Class', 'Water Depth (m)', 'Water Temperature (°C)']
-        ).properties(title="Depth vs Temperature by Age Class")
+        ).properties(title="Depth vs Temperature by Age Class", height=300)
         st.altair_chart(scatter, use_container_width=True)
 
     with col2:
@@ -215,7 +217,7 @@ with tabs[1]:
             x='Which Pier:N',
             y='count():Q',
             color='Which Pier:N'
-        ).properties(title="Injury Incidence by Pier")
+        ).properties(title="Injury Incidence by Pier", height=300)
         st.altair_chart(injury_bar, use_container_width=True)
 
         width_df = filtered_df.dropna(subset=['Disc Width (m)', 'Age Class', 'Sex'])
@@ -224,7 +226,7 @@ with tabs[1]:
             x='Age Class:N',
             y='Disc Width (m):Q',
             color='Sex:N'
-        ).properties(title="Disc Width by Age Class and Sex")
+        ).properties(title="Disc Width by Age Class and Sex", height=300)
         st.altair_chart(boxplot, use_container_width=True)
 
 # --- Data View Tab ---
