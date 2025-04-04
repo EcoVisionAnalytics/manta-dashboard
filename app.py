@@ -150,7 +150,7 @@ with tabs[1]:
         unique_individuals = month_filtered_df['Manta Individual'].nunique()
         st.metric(label="Unique Individuals", value=unique_individuals)
     with score3:
-        feeding_count = month_filtered_df['Feeding T/F'].str.lower().isin(['yes', 'y', 'true']).sum()
+        feeding_count = month_filtered_df['Feeding T/F'].astype(str).str.lower().isin(['yes', 'y', 'true']).sum()
         st.metric(label="Feeding Events", value=feeding_count)
     with score4:
         injured_count = month_filtered_df['New Injury?'].str.lower().isin(['yes', 'y']).sum()
