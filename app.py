@@ -56,7 +56,7 @@ with col2:
     st.markdown("</a>", unsafe_allow_html=True)
 
 # Sidebar
-with st.sidebar.expander("📘 Instructions for Use", expanded=False):
+with st.sidebar.expander("Instructions for Use", expanded=False):
     st.markdown("""
     **Welcome to the Manta Ray Encounter Dashboard!**
     
@@ -127,6 +127,34 @@ with tabs[0]:
 # --- Visualizations Tab ---
 with tabs[1]:
     st.subheader("Visualizations")
+
+    # --- Scorecards ---
+    month_options = sorted(filtered_df['Month'].dropna().unique())
+    year_options = sorted(filtered_df['Year'].dropna().unique())
+    
+    col_month, col_year = st.columns(2)
+    with col_month:
+        selected_months = st.multiselect("Filter Scorecards by Month", month_options, default=month_options)
+    with col_year:
+        selected_years_scorecard = st.multiselect("Filter Scorecards by Year", year_options, default=year_options)
+
+    month_filtered_df = filtered_df[
+        filtered_df['Month'].isin(selected_months) &
+        filtered_df['Year'].isin(selected_years_scorecard)
+    ]
+
+    score1, score2, score3, score4 = st.columns(4)
+    with score1:
+        st.metric(label="Total Encounters", value=len(month_filtered_df))
+    with score2:
+        unique_individuals = month_filtered_df['Manta Individual'].nunique()
+        st.metric(label="Unique Individuals", value=unique_individuals)
+    with score3:
+        feeding_count = month_filtered_df['Feeding T/F'].str.lower().isin(['yes', 'y', 'true']).sum()
+        st.metric(label="Feeding Events", value=feeding_count)
+    with score4:
+        injured_count = month_filtered_df['New Injury?'].str.lower().isin(['yes', 'y']).sum()
+        st.metric(label="New Injuries", value=injured_count)
 
     col1, col2 = st.columns(2)
 
