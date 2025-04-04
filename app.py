@@ -1,73 +1,4 @@
-import streamlit as st
-import pandas as pd
-import pydeck as pdk
-import altair as alt
-import requests
-from datetime import datetime, timedelta
-
-# Load data
-data_path = "data/manta_data.csv"
-df = pd.read_csv(data_path)
-
-# Preprocess
-if 'Date' in df.columns:
-    df['Date'] = df['Date'].astype(str)  # Keep original string format for display
-if 'Year ' in df.columns:
-    df['Year'] = df['Year '].astype(str).str.strip()
-
-st.set_page_config(page_title="Manta Dashboard", layout="wide")
-st.markdown("""
-    <style>
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.4);
-        z-index: -1;
-    }
-    body {
-        background-image: url('manta.jpg');
-        background-size: cover;
-        background-attachment: fixed;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-color: #909090;
-        color: white;
-    }
-    .stApp {
-        background-color: #909090;
-    }
-    .st-bb, .st-bc, .st-cq, .st-cn, .st-cp {
-        background-color: #7491ab !important;
-        color: white !important;
-    }
-    .stTabs [data-baseweb="tab"] {
-        font-size: 1.5rem;
-        padding: 12px 20px;
-        background-color: #2297fd !important;
-        color: white !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-st.title("Florida Manta Project Dashboard")
-
-from PIL import Image
-
-# Display logo in upper right corner using st.image
-logo_path = "MMFLogo.png"
-logo = Image.open(logo_path)
-
-col1, col2 = st.columns([9, 1])
-with col2:
-    st.markdown(
-        f"<a href='https://marinemegafauna.org' target='_blank'>",
-        unsafe_allow_html=True
-    )
-    st.image(logo, width=180)
+   st.image(logo, width=180)
     st.markdown("</a>", unsafe_allow_html=True)
 
 # Sidebar
@@ -168,8 +99,10 @@ with tabs[1]:
     ]
 
     score1, score2, score3, score4 = st.columns(4)
+
+    injured_count = month_filtered_df['New Injury?'].astype(str).str.lower().isin(['yes', 'y']).sum()
+
     with score1:
-	injured_count = month_filtered_df['New Injury?'].astype(str).str.lower().isin(['yes', 'y']).sum()
         st.metric(label="New Injuries", value=injured_count)
 
     col1, col2 = st.columns(2)
