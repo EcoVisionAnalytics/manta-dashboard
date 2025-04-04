@@ -38,7 +38,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Florida Manta Project Dashboard")
+st.title("🐬 Manta Ray Encounter Dashboard")
 
 from PIL import Image
 
@@ -56,7 +56,7 @@ with col2:
     st.markdown("</a>", unsafe_allow_html=True)
 
 # Sidebar
-with st.sidebar.expander("Instructions for Use", expanded=False):
+with st.sidebar.expander("📘 Instructions for Use", expanded=False):
     st.markdown("""
     **Welcome to the Manta Ray Encounter Dashboard!**
     
@@ -131,34 +131,48 @@ with tabs[1]:
     col1, col2 = st.columns(2)
 
     with col1:
-        sex_year_chart = alt.Chart(filtered_df).mark_bar().encode(
-            x='Year:O',
-            y='count():Q',
-            color='Sex:N'
-        ).properties(title="Sex by Year")
-        st.altair_chart(sex_year_chart, use_container_width=True)
+        # 1. Encounter Heatmap (Month vs Year)
+        heatmap_data = filtered_df.dropna(subset=['Month', 'Year'])
+        heatmap = alt.Chart(heatmap_data).mark_rect().encode(
+            x=alt.X('Month:N', title='Month'),
+            y=alt.Y('Year:O', title='Year'),
+            color=alt.Color('count():Q', scale=alt.Scale(scheme='blues'))
+        ).properties(title="Encounter Frequency by Month and Year")
+        st.altair_chart(heatmap, use_container_width=True)
 
-        habitat_chart = alt.Chart(filtered_df).mark_bar().encode(
-            x='Habitat:N',
-            y='count():Q',
-            color='Habitat:N'
-        ).properties(title="Habitat Preference")
-        st.altair_chart(habitat_chart, use_container_width=True)
+        # 2. Depth vs Temperature (color by Age Class)
+        scatter_df = filtered_df.dropna(subset=['Water Depth (m)', 'Water Temperature (°C)', 'Age Class'])
+        scatter_df['Water Depth (m)'] = pd.to_numeric(scatter_df['Water Depth (m)'], errors='coerce')
+        scatter_df['Water Temperature (°C)'] = pd.to_numeric(scatter_df['Water Temperature (°C)'], errors='coerce')
+        scatter = alt.Chart(scatter_df).mark_circle(size=60).encode(
+            x='Water Depth (m):Q',
+            y='Water Temperature (°C):Q',
+            color='Age Class:N',
+            tooltip=['Date', 'Name', 'Age Class', 'Water Depth (m)', 'Water Temperature (°C)']
+        ).properties(title="Depth vs Temperature by Age Class")
+        st.altair_chart(scatter, use_container_width=True)
 
     with col2:
-        sex_month_chart = alt.Chart(filtered_df).mark_bar().encode(
-            x='Month:N',
+        # 3. Injury Incidence by Location
+        injury_df = filtered_df[filtered_df['New Injury?'].notnull() & filtered_df['New Injury?'].str.lower().isin(['yes', 'y'])]
+        injury_bar = alt.Chart(injury_df).mark_bar().encode(
+            x='Which Pier:N',
             y='count():Q',
-            color='Sex:N'
-        ).properties(title="Sex by Month")
-        st.altair_chart(sex_month_chart, use_container_width=True)
+            color='Which Pier:N'
+        ).properties(title="Injury Incidence by Pier")
+        st.altair_chart(injury_bar, use_container_width=True)
 
-        tide_chart = alt.Chart(filtered_df).mark_bar().encode(
-            x='Tide:N',
-            y='count():Q',
-            color='Tide:N'
-        ).properties(title="Tide Preference")
-        st.altair_chart(tide_chart, use_container_width=True)
+        # 4. Behavioral Index vs Temperature (color by Feeding)
+        behavior_df = filtered_df.dropna(subset=['Behavioral Index', 'Water Temperature (°C)', 'Feeding'])
+        behavior_df['Behavioral Index'] = pd.to_numeric(behavior_df['Behavioral Index'], errors='coerce')
+        behavior_df['Water Temperature (°C)'] = pd.to_numeric(behavior_df['Water Temperature (°C)'], errors='coerce')
+        behavior_scatter = alt.Chart(behavior_df).mark_circle(size=60).encode(
+            x='Behavioral Index:Q',
+            y='Water Temperature (°C):Q',
+            color='Feeding:N',
+            tooltip=['Date', 'Behavioral Index', 'Water Temperature (°C)', 'Feeding']
+        ).properties(title="Behavioral Index vs Temperature (°C)")
+        st.altair_chart(behavior_scatter, use_container_width=True)
 
 # --- Data View Tab ---
 with tabs[2]:
