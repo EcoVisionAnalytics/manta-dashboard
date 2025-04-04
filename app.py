@@ -38,7 +38,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🐬 Manta Ray Encounter Dashboard")
+st.title("Florida Manta Project Dashboard")
 
 from PIL import Image
 
@@ -162,17 +162,15 @@ with tabs[1]:
         ).properties(title="Injury Incidence by Pier")
         st.altair_chart(injury_bar, use_container_width=True)
 
-        # 4. Behavioral Index vs Temperature (color by Feeding)
-        behavior_df = filtered_df.dropna(subset=['Behavioral Index', 'Water Temperature (°C)', 'Feeding'])
-        behavior_df['Behavioral Index'] = pd.to_numeric(behavior_df['Behavioral Index'], errors='coerce')
-        behavior_df['Water Temperature (°C)'] = pd.to_numeric(behavior_df['Water Temperature (°C)'], errors='coerce')
-        behavior_scatter = alt.Chart(behavior_df).mark_circle(size=60).encode(
-            x='Behavioral Index:Q',
-            y='Water Temperature (°C):Q',
-            color='Feeding:N',
-            tooltip=['Date', 'Behavioral Index', 'Water Temperature (°C)', 'Feeding']
-        ).properties(title="Behavioral Index vs Temperature (°C)")
-        st.altair_chart(behavior_scatter, use_container_width=True)
+        # 4. Disc Width by Age Class and Sex
+        width_df = filtered_df.dropna(subset=['Disc Width (m)', 'Age Class', 'Sex'])
+        width_df['Disc Width (m)'] = pd.to_numeric(width_df['Disc Width (m)'], errors='coerce')
+        boxplot = alt.Chart(width_df).mark_boxplot().encode(
+            x='Age Class:N',
+            y='Disc Width (m):Q',
+            color='Sex:N'
+        ).properties(title="Disc Width by Age Class and Sex")
+        st.altair_chart(boxplot, use_container_width=True)
 
 # --- Data View Tab ---
 with tabs[2]:
