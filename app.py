@@ -18,7 +18,22 @@ if 'Year ' in df.columns:
 st.set_page_config(page_title="Manta Dashboard", layout="wide")
 st.markdown("""
     <style>
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: -1;
+    }
     body {
+        background-image: url('manta.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
         background-color: #909090;
         color: white;
     }
@@ -56,7 +71,7 @@ with col2:
     st.markdown("</a>", unsafe_allow_html=True)
 
 # Sidebar
-with st.sidebar.expander("Instructions for Use", expanded=False):
+with st.sidebar.expander("📘 Instructions for Use", expanded=False):
     st.markdown("""
     **Welcome to the Manta Ray Encounter Dashboard!**
     
@@ -129,6 +144,15 @@ with tabs[1]:
     st.subheader("Visualizations")
 
     # --- Scorecards ---
+    st.markdown("""
+        <style>
+        .block-container > div > div > div > div {
+            background-color: #7491ab10;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        </style>
+    """, unsafe_allow_html=True)
     month_options = sorted(filtered_df['Month'].dropna().unique())
     year_options = sorted(filtered_df['Year'].dropna().unique())
     
@@ -145,15 +169,6 @@ with tabs[1]:
 
     score1, score2, score3, score4 = st.columns(4)
     with score1:
-        st.metric(label="Total Encounters", value=len(month_filtered_df))
-    with score2:
-        unique_individuals = month_filtered_df['Manta Individual'].nunique()
-        st.metric(label="Unique Individuals", value=unique_individuals)
-    with score3:
-        feeding_count = month_filtered_df['Feeding T/F'].astype(str).str.lower().isin(['yes', 'y', 'true']).sum()
-        st.metric(label="Feeding Events", value=feeding_count)
-    with score4:
-        injured_count = month_filtered_df['New Injury?'].str.lower().isin(['yes', 'y']).sum()
         st.metric(label="New Injuries", value=injured_count)
 
     col1, col2 = st.columns(2)
