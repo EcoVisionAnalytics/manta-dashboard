@@ -229,6 +229,70 @@ with tabs[1]:
         ).properties(title="Disc Width by Age Class and Sex", height=300)
         st.altair_chart(boxplot, use_container_width=True)
 
+# --- Advanced Visualizations and Analyses---
+    st.markdown("---")
+    st.subheader("Additional Spatial and Directional Analyses")
+
+    # 1. Encounter Density Heatmap (HexLayer)
+    if not map_df.empty:
+        st.pydeck_chart(pdk.Deck(
+            map_style='mapbox://styles/mapbox/dark-v10',
+            initial_view_state=pdk.ViewState(
+                latitude=map_df['Latitude'].mean(),
+                longitude=map_df['Longitude'].mean(),
+                zoom=8,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    "HexagonLayer",
+                    data=map_df,
+                    get_position='[Longitude, Latitude]',
+                    radius=1500,
+                    elevation_scale=50,
+                    elevation_range=[0, 1000],
+                    pickable=True,
+                    extruded=True,
+                )
+            ]
+        ))
+
+    # 2. Travel Direction Wind Rose
+    if 'Travel Direction' in filtered_df.columns:
+        rose_data = filtered_df.dropna(subset=['Travel Direction'])
+        rose_data = rose_data[rose_data['Travel Direction'].apply(lambda x: str(x).isnumeric())]
+        rose_data['Travel Direction'] = rose_data['Travel Direction'].astype(int) // 30 * 30
+        rose_chart = alt.Chart(rose_data).mark_arc(innerRadius=20).encode(
+            theta=alt.Theta('count()', type='quantitative'),
+            color='Travel Direction:N'
+        ).properties(title="Travel Direction Frequency")
+        st.altair_chart(rose_chart, use_container_width=True)
+
+    # 3. Injury Hotspots (by proximity proxy)
+    if not injury_df.empty and 'Latitude' in injury_df.columns and 'Longitude' in injury_df.columns:
+        injury_df = injury_df.dropna(subset=['Latitude', 'Longitude'])
+        injury_df = injury_df.astype({"Latitude": float, "Longitude": float})
+        st.pydeck_chart(pdk.Deck(
+            map_style='mapbox://styles/mapbox/outdoors-v11',
+            initial_view_state=pdk.ViewState(
+                latitude=injury_df['Latitude'].mean(),
+                longitude=injury_df['Longitude'].mean(),
+                zoom=8,
+                pitch=30
+            ),
+            layers=[
+                pdk.Layer(
+                    'ScatterplotLayer',
+                    data=injury_df,
+                    get_position='[Longitude, Latitude]',
+                    get_radius=500,
+                    get_fill_color='[255, 0, 0, 160]',
+                    pickable=True
+                )
+            ],
+            tooltip={"text": "Injury at Pier: {Which Pier}"}
+        ))
+
 # --- Data View Tab ---
 with tabs[2]:
     st.subheader("Raw Data Table")
