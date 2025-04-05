@@ -154,7 +154,7 @@ with tabs[2]:
                                  layers=[pdk.Layer("HexagonLayer",data=adv_map_df,get_position='[Longitude,Latitude]',radius=1500,elevation_scale=50,elevation_range=[0,1000],pickable=True,extruded=True)]))
     # Wind rose
 
-      if 'Travel Direction' in df.columns:
+if 'Travel Direction' in df.columns:
     rd = df.dropna(subset=['Travel Direction']).copy()
     rd['Travel Direction'] = rd['Travel Direction'].astype(str).str.extract(r'(\d+)').astype(float)
     rd = rd.dropna()
