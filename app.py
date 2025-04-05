@@ -153,11 +153,20 @@ with tabs[2]:
                                  initial_view_state=pdk.ViewState(latitude=adv_map_df['Latitude'].mean(),longitude=adv_map_df['Longitude'].mean(),zoom=8,pitch=50),
                                  layers=[pdk.Layer("HexagonLayer",data=adv_map_df,get_position='[Longitude,Latitude]',radius=1500,elevation_scale=50,elevation_range=[0,1000],pickable=True,extruded=True)]))
     # Wind rose
-    if 'Travel Direction' in filtered_df.columns:
-        rd = filtered_df.dropna(subset=['Travel Direction'])
-        rd = rd[rd['Travel Direction'].apply(lambda x: str(x).isnumeric())]
-        rd['Travel Direction'] = rd['Travel Direction'].astype(int)//30*30
-        rose = alt.Chart(rd).mark_arc(innerRadius=20).encode(theta='count():Q', color='Travel Direction:N').properties(title="Travel Direction Frequency")
+
+      if 'Travel Direction' in df.columns:
+    rd = df.dropna(subset=['Travel Direction']).copy()
+    rd['Travel Direction'] = rd['Travel Direction'].astype(str).str.extract(r'(\d+)').astype(float)
+    rd = rd.dropna()
+    if not rd.empty:
+        rd['Dir Bin'] = (rd['Travel Direction'] // 30 * 30).astype(int)
+        rose = (
+            alt.Chart(rd)
+            .mark_arc(innerRadius=20)
+            .encode(theta='count():Q', color='Dir Bin:N')
+            .properties(title="Travel Direction Frequency (30° bins)")
+        )
+        st.altair_chart(rose, use_container_width=True)
         st.altair_chart(rose, use_container_width=True)
     # Injury hotspots
     inj_hot = inj_df.dropna(subset=['Latitude','Longitude']).astype({'Latitude':float,'Longitude':float})
